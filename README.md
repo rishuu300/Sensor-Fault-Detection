@@ -1,1 +1,1 @@
-## Machine Learning Sensor Detection
+## Machine Learning Sensor Fault Detection
