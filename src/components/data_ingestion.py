@@ -1,14 +1,14 @@
-import sys
 import os
+import sys
 import numpy as np
 import pandas as pd
-from pymongo.mongo_client import MongoClient
 from zipfile import Path
-from src.constant import MONGO_DB_URL, artifact_folder
-from src.exception import CustomException
 from src.logger import logging
-from src.utils.main_utils import MainUtils
 from dataclasses import dataclass
+from src.exception import CustomException
+from src.utils.main_utils import MainUtils
+from pymongo.mongo_client import MongoClient
+from src.constant import MONGO_DB_URL, MONGO_COLLECTION_NAME, MONGO_DATABASE_NAME, artifact_folder
 
 
 @dataclass
@@ -19,13 +19,12 @@ class DataIngestionConfig:
 class DataIngestion:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
+        mongo_client = MongoClient(MONGO_DB_URL)
         self.utils = MainUtils()
 
     def export_collection_as_dataframe(self, collection_name, db_name) -> pd.DataFrame:
         try:
-            mongo_client = MongoClient(MONGO_DB_URL)
-
-            collection = mongo_client[db_name][collection_name]
+            collection = self.mongo_client[db_name][collection_name]
 
             df = pd.DataFrame(list(collection.find()))
 
@@ -47,7 +46,7 @@ class DataIngestion:
             os.makedirs(raw_file_path, exist_ok=True)
 
             sensor_data = self.export_collection_as_dataframe(
-                collection_name="MONGO_COLLECTION_NAME", db_name="MONGO_DATABASE_NAME"
+                collection_name = MONGO_COLLECTION_NAME, db_name = MONGO_DATABASE_NAME
             )
 
             logging.info(

@@ -42,7 +42,7 @@ class ModelTrainer:
         
     def evaluate_models(self, X, y, models):
         try:
-            x_train, y_train, x_test, y_test = train_test_split(X, y, test_size = 0.2, random_state=42
+            x_train, x_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state=42
             )
             
             report = {}
@@ -52,11 +52,9 @@ class ModelTrainer:
                 
                 model.fit(x_train, y_train) #Train model
                 
-                y_train_pred = model.predict(x_train)
-
-                y_test_pred = model.predict(x_test)
+                y_pred = model.predict(x_test)
                 
-                test_model_score = accuracy_score(y_train, y_train_pred)
+                test_model_score = accuracy_score(y_test, y_pred)
                 
                 report[list(models.keys())[i]] = test_model_score
                 
@@ -66,23 +64,9 @@ class ModelTrainer:
             raise CustomException(e,sys) from e
         
         
-    def get_best_model(self,
-                       x_train:np.array,
-                       y_train:np.array,
-                       x_test:np.array,
-                       y_test:np.array):
+    def get_best_model(self, model_report : dict):
         
         try:
-            model_report : dict = self.evaluate_models(
-                x_train = x_train,
-                y_train = y_train,
-                x_test = x_test,
-                y_test = y_test,
-                model = self.models
-            )
-            
-            print(model_report)
-            
             best_model_score = max(sorted(model_report.values()))
             
             # To get the best model from the dictionary
@@ -98,7 +82,7 @@ class ModelTrainer:
             raise CustomException(e,sys) from e
         
         
-    def finetune_best_models(self, best_model_object : object, best_model_name, x_train, y_train) -> object:
+    def finetune_best_model(self, best_model_object : object, best_model_name, x_train, y_train) -> object:
         
         try:
             model_param_grid = self.utils.read_yaml_file(self.model_trainer_config.model_config_file_path)["model_selection"]["model"][best_model_name]["search_param_grid"]
@@ -113,9 +97,9 @@ class ModelTrainer:
             
             print("Best params are: ", best_params)
             
-            fintuned_model = best_model_object.set_params(**best_params)
+            finetuned_model = best_model_object.set_params(**best_params)
             
-            return fintuned_model
+            return finetuned_model
         
         except Exception as e:
             raise CustomException(e,sys) from e
@@ -137,23 +121,14 @@ class ModelTrainer:
 
             model_report: dict = self.evaluate_models(X=x_train, y=y_train, models=self.models)
 
-
-            ## To get best model score from dict
-            best_model_score = max(sorted(model_report.values()))
-
-
-            ## To get best model name from dict
-            best_model_name = list(model_report.keys())[
-                list(model_report.values()).index(best_model_score)
-            ]
-
-            best_model = self.models[best_model_name]
+            
+            best_model_name, best_model_object, best_model_score = self.get_best_model(model_report = model_report)
 
             best_model = self.finetune_best_model(
-                best_model_name= best_model_name,
-                best_model_object= best_model,
-                X_train= x_train,
-                y_train= y_train
+                best_model_name = best_model_name,
+                best_model_object= best_model_object,
+                x_train = x_train,
+                x_train = y_train
             )
 
 
@@ -165,7 +140,7 @@ class ModelTrainer:
 
 
             if best_model_score < 0.5:
-                raise Exception("No best model found with an accuracy greater than the threshold 0.6")
+                raise Exception("No best model found with an accuracy greater than the threshold 0.5")
            
             logging.info(f"Best found model on both training and testing dataset")
 
@@ -178,8 +153,8 @@ class ModelTrainer:
 
 
             self.utils.save_object(
-                file_path=self.model_trainer_config.trained_model_path,
-                obj=best_model
+                file_path = self.model_trainer_config.trained_model_path,
+                obj = best_model
             )
            
             return self.model_trainer_config.trained_model_path
