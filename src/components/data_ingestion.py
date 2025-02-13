@@ -19,7 +19,7 @@ class DataIngestionConfig:
 class DataIngestion:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
-        mongo_client = MongoClient(MONGO_DB_URL)
+        self.mongo_client = MongoClient(MONGO_DB_URL)
         self.utils = MainUtils()
 
     def export_collection_as_dataframe(self, collection_name, db_name) -> pd.DataFrame:
