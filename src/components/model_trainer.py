@@ -128,7 +128,7 @@ class ModelTrainer:
                 best_model_name = best_model_name,
                 best_model_object= best_model_object,
                 x_train = x_train,
-                x_train = y_train
+                y_train = y_train
             )
 
 
@@ -136,7 +136,7 @@ class ModelTrainer:
             y_pred = best_model.predict(x_test)
             best_model_score = accuracy_score(y_test, y_pred)
            
-            print(f"best model name {best_model_name} and score: {best_model_score}")
+            print(f"Best model name {best_model_name} and score: {best_model_score}")
 
 
             if best_model_score < 0.5:
@@ -157,7 +157,7 @@ class ModelTrainer:
                 obj = best_model
             )
            
-            return self.model_trainer_config.trained_model_path
+            return best_model_score
 
         except Exception as e:
             raise CustomException(e, sys)

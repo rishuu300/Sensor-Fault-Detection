@@ -76,7 +76,7 @@ class PredictionPipeline:
             
             input_dataframe.to_csv(self.prediction_pipeline_config.prediction_file_path, index = False)
 
-            logging.ingo("Predictions completed")
+            logging.info("Predictions completed")
         
         except Exception as e:
             raise CustomException(e,sys) from e
@@ -85,7 +85,7 @@ class PredictionPipeline:
     def run_pipeline(self):
         try:
             input_csv_path = self.save_input_files()
-            self.get_predicted_dataframe()
+            self.get_predicted_dataframe(input_csv_path)
             
             return self.prediction_pipeline_config
         
