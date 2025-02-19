@@ -1,7 +1,7 @@
 import os
 
 
-AWS_S3_BUCKET_NAME = "sensor-fault"
+AWS_S3_BUCKET_NAME = "sensor-fault-pw"
 MONGO_DATABASE_NAME = "ml_projects"
 MONGO_COLLECTION_NAME = "sensor-fault"
 
